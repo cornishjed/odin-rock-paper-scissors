@@ -1,3 +1,6 @@
+let playerScore = 0;
+let cpuScore = 0;
+
 function getComputerChoice() {
   const janken = ["Rock", "Paper", "Scissors"];
   const selection = janken[Math.floor(Math.random() * janken.length)];
@@ -5,43 +8,89 @@ function getComputerChoice() {
 }
 
 function processRound(playerSelection, computerSelection) {
-  playerSelection = capitalize(playerSelection);
-  
-  if (playerSelection == computerSelection) return "It's a draw";
+  const readyChant = "Jan Ken...";
+  const chant = () => (document.querySelector(".pon").textContent = "PON!");
+  const checkScore = () => {
+    if (playerScore === 5) return " You won the game! Game Over";
+    if (cpuScore === 5) return " You lost the game! Game Over";
+    return "";
+  };
+
+  const reset = () => {
+    playerScore = 0;
+    cpuScore = 0;
+    document.querySelector(".pon").textContent = "";
+    return;
+  };
+
+  if (playerSelection === "Reset") {
+    reset();
+    return;
+  }
+
+  if (checkScore() !== "") {
+    return checkScore();
+  }
+
+  if (playerSelection == computerSelection) {
+    chant();
+    return "It's a draw";
+  }
 
   switch (playerSelection) {
     case "Rock":
-      if (computerSelection === "Paper") return "You Lose! Paper beats Rock";
-      else if (computerSelection === "Scissors")
-        return "You Win! Rock beats Scissors";
+      chant();
+      if (computerSelection === "Paper") {
+        cpuScore++;
+        return "You Lose! Paper beats Rock" + checkScore();
+      } else if (computerSelection === "Scissors") {
+        playerScore++;
+        return "You Win! Rock beats Scissors" + checkScore();
+      }
       break;
     case "Paper":
-      if (computerSelection === "Rock") return "You Win! Paper beats Rock";
-      else if (computerSelection === "Scissors")
-        return "You Lose! Scissors beats Paper";
+      chant();
+      if (computerSelection === "Rock") {
+        playerScore++;
+        return "You Win! Paper beats Rock" + checkScore();
+      } else if (computerSelection === "Scissors") {
+        cpuScore++;
+        return "You Lose! Scissors beats Paper" + checkScore();
+      }
       break;
     case "Scissors":
-      if (computerSelection === "Rock") return "You Lose! Rock beats Scissors";
-      else if (computerSelection === "Paper")
-        return "You Win! Scissors beats Paper";
+      chant();
+      if (computerSelection === "Rock") {
+        cpuScore++;
+        return "You Lose! Rock beats Scissors\n" + checkScore();
+      } else if (computerSelection === "Paper") {
+        playerScore++;
+        return "You Win! Scissors beats Paper\n" + checkScore();
+      }
       break;
+    case "Reset":
+      reset();
+      return;
   }
 
   return "Input not recognised";
 }
 
-function capitalize(input) {
-  input = input.toLowerCase();
-  input = input[0].toUpperCase() + input.substr(1, input.length - 1);
+function game(playerInput) {
+  let resultText = document.querySelector(".results");
+  let playerScoreText = document.querySelector(".playerScore");
+  let cpuScoreText = document.querySelector(".cpuScore");
+  let feedback = processRound(playerInput, getComputerChoice());
 
-  return input;
+  playerScoreText.textContent = playerScore;
+  cpuScoreText.textContent = cpuScore;
+  resultText.textContent = feedback;
 }
 
-function game() {
-  for (let i = 0; i < 5; i++) {
-    let playerInput = prompt("Enter Rock, Paper or Scissors: ");
-    console.log(processRound(playerInput, getComputerChoice()));
-  }
-}
+const buttons = document.querySelectorAll("button");
 
-game();
+buttons.forEach((button) => {
+  button.addEventListener("click", function () {
+    game(button.textContent);
+  });
+});
